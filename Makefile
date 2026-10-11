@@ -13,7 +13,7 @@ env-down:
 env-cleanup:
 	@read -p "Очисть данные бд? (y/n): " answer; \
 	if [ "$$answer" = "y" ]; then \
-		docker compose down todoapp-postgres && \
+		docker compose down todoapp-postgres port-forward && \
 		rm -rf out/pgdata && \
 		echo "Данные бд очищены"; \
 	else \
@@ -62,8 +62,12 @@ migrate-action:
 		-database "$(POSTGRES_URL)" \
 		"$(action)"
 
-env-port-forward:
+env-port-db-forward:
 	@docker compose up -d port-forward
 
-env-port-close:
+env-port-db-close:
 	@docker compose down port-forward
+
+todoapp-run:
+	@go mod tidy && \
+	go run cmd/todoapp/main.go

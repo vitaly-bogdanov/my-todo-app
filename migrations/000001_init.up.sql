@@ -4,10 +4,8 @@ CREATE TABLE todoapp.users (
   id SERIAL PRIMARY KEY,
   version BIGINT NOT NULL DEFAULT 1,
   full_name VARCHAR(100) NOT NULL CHECK (full_name <> ''),
-  phone_number VARCHAR(15) NOT NULL UNIQUE CHECK (
-      phone_number ~ '^\+[0-9]+$'
-      AND
-      char_length(trim(full_name)) >= 10
+  phone_number VARCHAR(16) UNIQUE CHECK (
+      phone_number ~ '^\+[1-9][0-9]{7,14}$'
   )
 );
 
