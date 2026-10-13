@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jackc/pgx/v5"
 	core_errors "github.com/vitaly-bogdanov/my-todo-app/internal/core/errors"
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
+	core_repository_postgres_pool "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool"
+	core_http_request "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/request"
 	core_http_response "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/response"
-	core_http_utils "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/utils"
 )
 
 type GetUserRequest UserDTO
@@ -20,7 +20,7 @@ func (h *UserHttpHandler) GetUser(rw http.ResponseWriter, req *http.Request) {
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 	log.Info("get user")
 
-	userID, err := core_http_utils.GetIntPathValue(req, "id")
+	userID, err := core_http_request.GetIntPathValue(req, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			fmt.Errorf("%w: %w", err, core_errors.BadRequest),
@@ -30,7 +30,7 @@ func (h *UserHttpHandler) GetUser(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	user, err := h.userService.GetUser(ctx, userID)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if errors.Is(err, core_repository_postgres_pool.ErrNoRows) {
 		responseHandler.ErrorResponse(
 			fmt.Errorf("%w: %w", err, core_errors.NotFound),
 			"user not found",

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	core_domain "github.com/vitaly-bogdanov/my-todo-app/internal/core/domain"
+	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/server"
 )
 
@@ -38,6 +39,9 @@ func (h *UserHttpHandler) Routes() []core_http_server.Route {
 			Method:  http.MethodGet,
 			Path:    "/users",
 			Handler: h.GetUsers,
+			Middlewares: []core_http_middleware.Middleware{
+				core_http_middleware.Dummy(),
+			},
 		},
 		{
 			Method:  http.MethodGet,

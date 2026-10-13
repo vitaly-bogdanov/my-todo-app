@@ -38,7 +38,7 @@ func Logger(log *core_logger.Logger) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := r.Header.Get(requestIDHeader)
 
-			ctx := context.WithValue(r.Context(), "log", log.With(
+			ctx := context.WithValue(r.Context(), core_logger.LoggerContextKey, log.With(
 				zap.String("requestID", requestID),
 				zap.String("method", r.Method),
 				zap.String("url", r.URL.String()),
@@ -91,7 +91,7 @@ func Trace() Middleware {
 
 			log.Debug(
 				"<<< done HTTP request",
-				zap.Int("statusCode", rwWithStatusCode.GetStatusCodeOrPanic()),
+				zap.Int("statusCode", rwWithStatusCode.GetStatusCode()),
 				zap.Duration("latency", time.Since(before)),
 			)
 		})
