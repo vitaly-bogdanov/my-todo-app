@@ -22,11 +22,11 @@ func (rw *ResponseWriter) WriteHeader(statusCode int) {
 	rw.statusCode = statusCode
 }
 
-// GetStatusCodeOrPanic возвращает статус, записанный через WriteHeader.
-// Если WriteHeader ещё не вызывали, GetStatusCodeOrPanic паникует.
-func (rw *ResponseWriter) GetStatusCodeOrPanic() int {
+// GetStatusCode возвращает статус, записанный через WriteHeader.
+// Если WriteHeader ещё не вызывали, GetStatusCode паникует.
+func (rw *ResponseWriter) GetStatusCode() int {
 	if rw.statusCode == StatusCodeUninitialized {
-		panic("status code is not initialized")
+		return http.StatusOK
 	}
 	return rw.statusCode
 }

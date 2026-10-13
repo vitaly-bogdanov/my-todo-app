@@ -12,6 +12,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type loggerContextKey struct{}
+
+var LoggerContextKey = loggerContextKey{}
+
 // Logger пишет сообщения в файл и в стандартный вывод.
 // Методы zap доступны напрямую через встроенный *zap.Logger.
 type Logger struct {
@@ -22,7 +26,7 @@ type Logger struct {
 // FromContext достаёт Logger из контекста.
 // Если логера в контексте нет или тип значения другой, FromContext паникует.
 func FromContext(ctx context.Context) *Logger {
-	logger, ok := ctx.Value("log").(*Logger)
+	logger, ok := ctx.Value(LoggerContextKey).(*Logger)
 	if !ok {
 		panic("logger not found in context")
 	}

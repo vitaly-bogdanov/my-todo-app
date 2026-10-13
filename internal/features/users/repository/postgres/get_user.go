@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	core_domain "github.com/vitaly-bogdanov/my-todo-app/internal/core/domain"
 	core_errors "github.com/vitaly-bogdanov/my-todo-app/internal/core/errors"
+	core_repository_postgres_pool "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool"
 )
 
 func (r *UserRepository) GetUser(ctx context.Context, userID int) (core_domain.User, error) {
@@ -27,7 +27,7 @@ func (r *UserRepository) GetUser(ctx context.Context, userID int) (core_domain.U
 		&userModel.FullName,
 		&userModel.PhoneNumber,
 	)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if errors.Is(err, core_repository_postgres_pool.ErrNoRows) {
 		return core_domain.User{}, fmt.Errorf("user not found: %w", core_errors.NotFound)
 	}
 	if err != nil {

@@ -10,7 +10,6 @@ import (
 	core_http_request "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/request"
 	core_http_response "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/response"
 	core_http_types "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/types"
-	core_http_utils "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/utils"
 )
 
 var phoneNumberPattern = regexp.MustCompile(`^\+[1-9]\d{7,14}$`)
@@ -55,7 +54,7 @@ func (h *UserHttpHandler) PatchUser(rw http.ResponseWriter, req *http.Request) {
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 	log.Info("patch user")
 
-	userID, err := core_http_utils.GetIntPathValue(req, "id")
+	userID, err := core_http_request.GetIntPathValue(req, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to get user ID")
 		return
@@ -82,8 +81,8 @@ func (h *UserHttpHandler) PatchUser(rw http.ResponseWriter, req *http.Request) {
 }
 
 func userPatchFromRequest(request PatchUserRequestDTO) core_domain.UserPatch {
-	return core_domain.UserPatch{
-		FullName:    request.FullName.ToDomain(),
-		PhoneNumber: request.PhoneNumber.ToDomain(),
-	}
+	return core_domain.NewUserPatch(
+		request.FullName.ToDomain(),
+		request.PhoneNumber.ToDomain(),
+	)
 }

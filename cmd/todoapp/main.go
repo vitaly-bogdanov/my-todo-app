@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
-	core_repository_postgres_pool "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool"
+	core_repository_postgres_pool_pgx "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/server"
 	users_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/users/repository/postgres"
@@ -30,11 +30,11 @@ func main() {
 	defer logger.Close()
 
 	logger.Info("creating connection pool...")
-	pool, err := core_repository_postgres_pool.NewConnectionPool(
-		ctx,
-		core_repository_postgres_pool.NewConfigMust(),
-	)
 
+	pool, err := core_repository_postgres_pool_pgx.NewPool(
+		ctx,
+		core_repository_postgres_pool_pgx.NewConfigMust(),
+	)
 	if err != nil {
 		logger.Fatal("failed to create connection pool", zap.Error(err))
 	}

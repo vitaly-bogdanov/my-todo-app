@@ -7,8 +7,8 @@ import (
 
 	core_errors "github.com/vitaly-bogdanov/my-todo-app/internal/core/errors"
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
+	core_http_request "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/request"
 	core_http_response "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/response"
-	core_http_utils "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/utils"
 )
 
 // GetUsersResponseDTO — тело ответа после получения списка пользователей.
@@ -44,7 +44,7 @@ func (h *UserHttpHandler) GetUsers(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getLimitOffsetQueryParams(req *http.Request) (*int, *int, error) {
-	limit, err := core_http_utils.GetIntQueryParams(req, "limit")
+	limit, err := core_http_request.GetIntQueryParams(req, "limit")
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'limit' query param: %w", err)
 	}
@@ -52,7 +52,7 @@ func getLimitOffsetQueryParams(req *http.Request) (*int, *int, error) {
 		return nil, nil, fmt.Errorf("limit must be greater than 0")
 	}
 
-	offset, err := core_http_utils.GetIntQueryParams(req, "offset")
+	offset, err := core_http_request.GetIntQueryParams(req, "offset")
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'offset' query param: %w", err)
 	}
