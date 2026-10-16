@@ -46,7 +46,6 @@ func (h *UserHttpHandler) CreateUser(rw http.ResponseWriter, req *http.Request) 
 
 	createUserResponse := CreateUserResponseDTO(userDtoFromDomain(userDomain))
 
-	log.Info("success")
 	responseHandler.JSONResponse(createUserResponse, http.StatusCreated)
 }
 

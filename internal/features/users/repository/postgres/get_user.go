@@ -34,10 +34,5 @@ func (r *UserRepository) GetUser(ctx context.Context, userID int) (core_domain.U
 		return core_domain.User{}, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	return core_domain.NewUser(
-		userModel.ID,
-		userModel.Version,
-		userModel.FullName,
-		userModel.PhoneNumber,
-	), nil
+	return userDomainFromModel(userModel), nil
 }

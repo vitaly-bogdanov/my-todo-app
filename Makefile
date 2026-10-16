@@ -73,6 +73,15 @@ env-port-db-forward: ## Пробросить порт Postgres на localhost
 env-port-db-close: ## Закрыть проброс порта Postgres
 	@docker compose down port-forward
 
+logs-clear: ## Очистить логи приложения
+	@read -p "Очистить логи приложения? (y/n): " answer; \
+	if [ "$$answer" = "y" ]; then \
+		rm -rf $(PROJECT_ROOT)/out/logs/*.log; \
+		echo "Логи приложения очищены"; \
+	else \
+		echo "Отмена"; \
+	fi
+
 todoapp-run: ## Обновить зависимости и запустить приложение
 	@go mod tidy && \
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go

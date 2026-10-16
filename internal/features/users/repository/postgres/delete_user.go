@@ -7,7 +7,10 @@ import (
 	core_errors "github.com/vitaly-bogdanov/my-todo-app/internal/core/errors"
 )
 
-func (r *UserRepository) DeleteUser(ctx context.Context, userID int) error {
+func (r *UserRepository) DeleteUser(
+		ctx context.Context,
+		userID int,
+	) error {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 

@@ -15,8 +15,8 @@ import (
 var phoneNumberPattern = regexp.MustCompile(`^\+[1-9]\d{7,14}$`)
 
 type PatchUserRequestDTO struct {
-	FullName    core_http_types.Nullable[string] `json:"full_name" validate:"min=1,max=100"`
-	PhoneNumber core_http_types.Nullable[string] `json:"phone_number" validate:"omitempty,e164,startswith=+"`
+	FullName    core_http_types.Nullable[string] `json:"full_name"`
+	PhoneNumber core_http_types.Nullable[string] `json:"phone_number"`
 }
 
 func (r *PatchUserRequestDTO) Validate() error {
@@ -48,6 +48,7 @@ func (r *PatchUserRequestDTO) Validate() error {
 
 type PatchUserResponseDTO UserDTO
 
+// 404 доделать
 func (h *UserHttpHandler) PatchUser(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	log := core_logger.FromContext(ctx)
