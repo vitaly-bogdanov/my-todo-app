@@ -9,16 +9,20 @@ type UserModel struct {
 	PhoneNumber *string
 }
 
+func userDomainFromModel(userModel UserModel) core_domain.User {
+	return core_domain.NewUser(
+		userModel.ID,
+		userModel.Version,
+		userModel.FullName,
+		userModel.PhoneNumber,
+	)
+}
+
 func userDomainsFromModels(userModels []UserModel) []core_domain.User {
 	userDomains := make([]core_domain.User, len(userModels))
 
 	for i, userModel := range userModels {
-		userDomains[i] = core_domain.NewUser(
-			userModel.ID,
-			userModel.Version,
-			userModel.FullName,
-			userModel.PhoneNumber,
-		)
+		userDomains[i] = userDomainFromModel(userModel)
 	}
 	return userDomains
 }

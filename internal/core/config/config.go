@@ -1,0 +1,37 @@
+package core_config
+
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
+type Config struct {
+	TimeZone *time.Location
+}
+
+func NewConfig() (*Config, error) {
+	tz := os.Getenv("TIME_ZONE")
+
+	if tz == "" {
+		tz = "UTC"
+	}
+
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load time zone: %s: %w", tz, err)
+	}
+
+	return &Config{
+		TimeZone: loc,
+	}, nil
+}
+
+func NewConfigMust() *Config {
+	config, err := NewConfig()
+	if err != nil {
+		err = fmt.Errorf("failed to create config: %w", err)
+		panic(err)
+	}
+	return config
+}
