@@ -13,6 +13,9 @@ import (
 	core_repository_postgres_pool_pgx "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/server"
+	statistics_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/repository/postgres"
+	statistics_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/service"
+	statistics_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/transport/http"
 	tasks_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/repository/postgres"
 	tasks_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/service"
 	tasks_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/transport/http"
@@ -60,6 +63,11 @@ func main() {
 	tasksService := tasks_service.NewTaskService(tasksRepository)
 	tasksTransportHTTP := tasks_transport_http.NewTaskHttpHandler(tasksService)
 
+	logger.Debug("initializing features...", zap.String("features", "statistics"))
+	statisticsRepository := statistics_repository_postgres.NewStatisticsRepository(pool)
+	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
+	statisticsTransportHTTP := statistics_transport_http.NewStatisticsHttpHandler(statisticsService)
+
 	logger.Debug("initializing HTTP server...")
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
@@ -72,6 +80,7 @@ func main() {
 	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersionV1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
+	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 
 	httpServer.RegisterAPIVersionRouter(apiVersionRouter)
 	if err := httpServer.Run(ctx); err != nil {
