@@ -6,16 +6,16 @@ export POSTGRES_URL=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@todoapp-pos
 
 .PHONY: help env-up env-down env-cleanup migrate-create migrate-up migrate-down migrate-force migrate-drop migrate-action env-port-db-forward env-port-db-close todoapp-run
 
-help: ## Показать список команд
+help:
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-24s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-env-up: ## Запустить Postgres
+env-up:
 	@docker compose up -d todoapp-postgres
 
-env-down: ## Остановить Postgres
+env-down:
 	@docker compose down todoapp-postgres
 
-env-cleanup: ## Остановить Postgres и удалить данные, спросив подтверждение
+env-cleanup:
 	@read -p "Очисть данные бд? (y/n): " answer; \
 	if [ "$$answer" = "y" ]; then \
 		docker compose down todoapp-postgres port-forward && \
@@ -25,7 +25,7 @@ env-cleanup: ## Остановить Postgres и удалить данные, с
 		echo "Отмена"; \
 	fi
 
-migrate-create: ## Создать файлы новой миграции
+migrate-create:
 	@read -p "Введите название миграции: " name; \
 	if [ -z "$$name" ]; then \
 		echo "Название миграции не может быть пустым"; \
@@ -38,26 +38,26 @@ migrate-create: ## Создать файлы новой миграции
 		-dir migrations \
 		-seq "$$name"
 
-migrate-up: ## Применить все новые миграции
+migrate-up:
 	@make migrate-action action=up
 
-migrate-down: ## Откатить последнюю миграцию
+migrate-down:
 	@make migrate-action action=down
 
-migrate-force: ## Записать версию миграции без её выполнения, version=N (по умолчанию 0)
+migrate-force:
 	@echo "force version=$(or $(version),0)"; \
 	docker compose run --rm todoapp-postgres-migrate \
 		-path migrations \
 		-database "$(POSTGRES_URL)" \
 		force "$(or $(version),0)"
 
-migrate-drop: ## Удалить все таблицы в базе
+migrate-drop:
 	@docker compose run --rm todoapp-postgres-migrate \
 		-path migrations \
 		-database "$(POSTGRES_URL)" \
 		drop -f
 
-migrate-action: ## Выполнить миграцию, action=up или action=down
+migrate-action:
 	@if [ -z "$(action)" ]; then \
 		echo "action не может быть пустым"; \
 		exit 1; \
@@ -67,13 +67,13 @@ migrate-action: ## Выполнить миграцию, action=up или action=
 		-database "$(POSTGRES_URL)" \
 		"$(action)"
 
-env-port-db-forward: ## Пробросить порт Postgres на localhost
+env-port-db-forward:
 	@docker compose up -d port-forward
 
-env-port-db-close: ## Закрыть проброс порта Postgres
+env-port-db-close:
 	@docker compose down port-forward
 
-logs-clear: ## Очистить логи приложения
+logs-clear:
 	@read -p "Очистить логи приложения? (y/n): " answer; \
 	if [ "$$answer" = "y" ]; then \
 		rm -rf $(PROJECT_ROOT)/out/logs/*.log; \
@@ -82,10 +82,12 @@ logs-clear: ## Очистить логи приложения
 		echo "Отмена"; \
 	fi
 
-todoapp-run: ## Обновить зависимости и запустить приложение
+todoapp-run:
 	@go mod tidy && \
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
 
-todoapp-deploy: ## Собрать приложение
+todoapp-deploy:
 	@docker compose up -d --build todoapp
 
+todoapp-undeploy:
+	@docker compose down todoapp
