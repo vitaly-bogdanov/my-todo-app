@@ -8,7 +8,9 @@ import (
 )
 
 type Config struct {
-	Addr            string        `envconfig:"ADDR" required:"true"`
+	Host            string        `envconfig:"HOST"`
+	Port            int           `envconfig:"PORT" required:"true"`
+	Addr            string        `ignored:"true"`
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
 }
 
@@ -17,6 +19,17 @@ func NewConfig() (Config, error) {
 	if err := envconfig.Process("HTTP", &config); err != nil {
 		return Config{}, fmt.Errorf("failed to process http config: %w", err)
 	}
+
+	if config.Port < 1 || config.Port > 65535 {
+		return Config{}, fmt.Errorf("http port must be between 1 and 65535: %d", config.Port)
+	}
+
+	if config.Host == "" {
+		config.Addr = fmt.Sprintf(":%d", config.Port)
+	} else {
+		config.Addr = fmt.Sprintf("%s:%d", config.Host, config.Port)
+	}
+
 	return config, nil
 }
 
