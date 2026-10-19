@@ -85,3 +85,4 @@ logs-clear: ## Очистить логи приложения
 todoapp-run: ## Обновить зависимости и запустить приложение
 	@go mod tidy && \
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
+

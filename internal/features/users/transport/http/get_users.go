@@ -39,7 +39,6 @@ func (h *UserHttpHandler) GetUsers(rw http.ResponseWriter, req *http.Request) {
 	usersResponse := GetUsersResponseDTO(userDtosFromDomains(users))
 
 	rw.Header().Set("X-Total-Count", strconv.Itoa(total))
-	log.Info("success")
 	responseHandler.JSONResponse(usersResponse, http.StatusOK)
 }
 
