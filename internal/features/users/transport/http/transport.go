@@ -9,12 +9,10 @@ import (
 	core_http_server "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/server"
 )
 
-// UserHttpHandler обрабатывает HTTP-запросы пользователей.
 type UserHttpHandler struct {
 	userService UserService
 }
 
-// UserService — операции с пользователями, которые вызывает UserHttpHandler.
 type UserService interface {
 	CreateUser(ctx context.Context, user core_domain.User) (core_domain.User, error)
 	GetUsers(ctx context.Context, limit *int, offset *int) ([]core_domain.User, int, error)
@@ -23,7 +21,6 @@ type UserService interface {
 	PatchUser(ctx context.Context, userID int, userPatch core_domain.UserPatch) (core_domain.User, error)
 }
 
-// NewUserHttpHandler создаёт UserHttpHandler с переданным сервисом.
 func NewUserHttpHandler(userService UserService) *UserHttpHandler {
 	return &UserHttpHandler{userService: userService}
 }

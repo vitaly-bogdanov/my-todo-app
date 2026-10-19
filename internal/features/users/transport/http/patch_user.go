@@ -12,7 +12,7 @@ import (
 	core_http_types "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/types"
 )
 
-var phoneNumberPattern = regexp.MustCompile(`^\+[1-9]\d{7,14}$`)
+var phoneNumberPattern = regexp.MustCompile(`^\+[1-9][0-9]{7,14}$`)
 
 type PatchUserRequestDTO struct {
 	FullName    core_http_types.Nullable[string] `json:"full_name"`
@@ -33,11 +33,6 @@ func (r *PatchUserRequestDTO) Validate() error {
 
 	if r.PhoneNumber.Set && r.PhoneNumber.Value != nil {
 		phoneNumber := *r.PhoneNumber.Value
-		phoneNumberLen := len([]rune(phoneNumber))
-		if phoneNumberLen < 10 || phoneNumberLen > 15 {
-			return fmt.Errorf("phone number must be between 10 and 15 characters")
-		}
-
 		if !phoneNumberPattern.MatchString(phoneNumber) {
 			return fmt.Errorf("invalid phone number")
 		}

@@ -57,6 +57,20 @@ func NewTaskUninitialized(
 	)
 }
 
+func (t *Task) CompletionDuration() *time.Duration {
+	if !t.Completed {
+		return nil
+	}
+
+	if t.CompletedAt == nil {
+		return nil
+	}
+
+	duration := t.CompletedAt.Sub(t.CreatedAt)
+
+	return &duration
+}
+
 // Validate проверяет заголовок, описание и согласованность статуса завершения задачи.
 func (t *Task) Validate() error {
 	// Title обязателен: от 1 до 100 символов.
