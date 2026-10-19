@@ -1,0 +1,58 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Бесплатный Docker web service + бесплатная Postgres.
+# Миграции применяются самим приложением при старте (на free-плане нет pre-deploy команды).
+services:
+  - type: web
+    name: my-todo-app
+    runtime: docker
+    plan: free
+    dockerfilePath: ./cmd/todoapp/Dockerfile
+    dockerContext: .
+    healthCheckPath: /v1/users
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: HTTP_HOST
+        value: 0.0.0.0
+      - key: HTTP_PORT
+        value: "10000"
+      - key: HTTP_SHUTDOWN_TIMEOUT
+        value: 10s
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: my-todo-app-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: my-todo-app-db
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: my-todo-app-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: my-todo-app-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: my-todo-app-db
+          property: database
+      - key: POSTGRES_TIMEOUT
+        value: 10s
+      # Внутренняя сеть Render не требует SSL. Для внешнего подключения поставьте require.
+      - key: POSTGRES_SSLMODE
+        value: disable
+      - key: LOGGER_LEVEL
+        value: info
+      - key: LOGGER_FOLDER
+        value: /app/out/logs
+      - key: TIME_ZONE
+        value: UTC
+
+databases:
+  - name: my-todo-app-db
+    plan: free
+    databaseName: todoapp
+    user: todoapp

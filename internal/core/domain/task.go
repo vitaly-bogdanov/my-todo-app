@@ -126,7 +126,7 @@ func NewTaskPatch(
 
 func (t *TaskPatch) Validate() error {
 	if t.Title.Set && t.Title.Value == nil {
-		return fmt.Errorf("Title can't be patched to null: $w", core_errors.BadRequest)
+		return fmt.Errorf("Title can't be patched to null: %w", core_errors.BadRequest)
 	}
 
 	if t.Completed.Set && t.Completed.Value == nil {
