@@ -12,9 +12,9 @@ import (
 )
 
 type PatchTaskRequestDTO struct {
-	Title       core_http_types.Nullable[string] `json:"title"`
-	Description core_http_types.Nullable[string] `json:"description"`
-	Completed   core_http_types.Nullable[bool]   `json:"completed"`
+	Title       core_http_types.Nullable[string] `json:"title" swaggertype:"string" example:"Buy milk"`
+	Description core_http_types.Nullable[string] `json:"description" swaggertype:"string" example:"2 liters"`
+	Completed   core_http_types.Nullable[bool]   `json:"completed" swaggertype:"boolean" example:"true"`
 }
 
 func (r *PatchTaskRequestDTO) Validate() error {
@@ -49,6 +49,24 @@ func (r *PatchTaskRequestDTO) Validate() error {
 
 type PatchTaskResponseDTO TaskDTO
 
+// PatchTask godoc
+// @Summary     Patch task
+// @Description Patch task by ID
+// @Description
+// @Description В теле можно передать любое сочетание полей:
+// @Description - title, от 1 до 100 символов, null нельзя
+// @Description - description, от 1 до 1000 символов, либо null чтобы очистить
+// @Description - completed, true или false, null нельзя
+// @Tags        tasks
+// @Produce     json
+// @Param       id path int true "Task ID"
+// @Param       request body PatchTaskRequestDTO true "Task patch"
+// @Success     200 {object} PatchTaskResponseDTO "Task patched"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     404 {object} core_http_response.ErrorResponse "Not found"
+// @Failure     409 {object} core_http_response.ErrorResponse "Conflict"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /tasks/{id} [patch]
 func (h *TaskHttpHandler) PatchTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

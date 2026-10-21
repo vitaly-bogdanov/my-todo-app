@@ -3,6 +3,7 @@ package core_http_middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -94,6 +95,34 @@ func Trace() Middleware {
 				zap.Int("statusCode", rwWithStatusCode.GetStatusCode()),
 				zap.Duration("latency", time.Since(before)),
 			)
+		})
+	}
+}
+
+func CORS(config CORSConfig) Middleware {
+	allowedOrigins := make(map[string]struct{}, len(config.AllowedOrigins))
+	for _, origin := range config.AllowedOrigins {
+		allowedOrigins[origin] = struct{}{}
+	}
+
+	allowedMethods := strings.Join(config.AllowedMethods, ", ")
+	allowedHeaders := strings.Join(config.AllowedHeaders, ", ")
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			origin := r.Header.Get("Origin")
+			if _, ok := allowedOrigins[origin]; ok {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", allowedMethods)
+				w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
+			}
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }

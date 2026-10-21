@@ -13,6 +13,19 @@ import (
 
 type GetTasksResponseDTO []TaskDTO
 
+// GetTasks godoc
+// @Summary     Get tasks list
+// @Description Get tasks list. Optional user_id filters by author. Total count is returned in X-Total-Count.
+// @Tags        tasks
+// @Produce     json
+// @Param       user_id query int false "Author user ID"
+// @Param       limit query int false "Limit"
+// @Param       offset query int false "Offset"
+// @Success     200 {array} TaskDTO "Tasks list"
+// @Header      200 {integer} X-Total-Count "Total number of tasks"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /tasks [get]
 func (h *TaskHttpHandler) GetTasks(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

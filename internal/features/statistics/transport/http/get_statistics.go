@@ -18,6 +18,18 @@ type GetStatisticsResponseDTO struct {
 	TasksAverageCompletationTime *string  `json:"tasks_average_completation_time"`
 }
 
+// GetStatistics godoc
+// @Summary     Get statistics
+// @Description Get task statistics. from and to are dates in YYYY-MM-DD. If both are set, to must be after from.
+// @Tags        statistics
+// @Produce     json
+// @Param       user_id query int false "Author user ID"
+// @Param       from query string false "Start date, YYYY-MM-DD"
+// @Param       to query string false "End date, YYYY-MM-DD"
+// @Success     200 {object} GetStatisticsResponseDTO "Statistics"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /statistics [get]
 func (h *StatisticsHttpHandler) GetStatistics(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	log := core_logger.FromContext(ctx)
