@@ -15,8 +15,8 @@ import (
 var phoneNumberPattern = regexp.MustCompile(`^\+[1-9][0-9]{7,14}$`)
 
 type PatchUserRequestDTO struct {
-	FullName    core_http_types.Nullable[string] `json:"full_name"`
-	PhoneNumber core_http_types.Nullable[string] `json:"phone_number"`
+	FullName    core_http_types.Nullable[string] `json:"full_name" swaggertype:"string" example:"John Doe"`
+	PhoneNumber core_http_types.Nullable[string] `json:"phone_number" swaggertype:"string" example:"+1234567890"`
 }
 
 func (r *PatchUserRequestDTO) Validate() error {
@@ -44,6 +44,27 @@ func (r *PatchUserRequestDTO) Validate() error {
 type PatchUserResponseDTO UserDTO
 
 // 404 доделать
+
+// PatchUser godoc
+// @Summary     Patch user
+// @Description Patch user by ID
+// @Description
+// @Description В теле можно передать:
+// @Description - только phone_number
+// @Description - только full_name
+// @Description - phone_number и full_name
+// @Description
+// @Description full_name не может быть null. phone_number начинается с + и содержит от 8 до 15 цифр, первая цифра от 1 до 9.
+// @Tags        users
+// @Produce     json
+// @Param       id path int true "User ID"
+// @Param       request body PatchUserRequestDTO true "User patch"
+// @Success     200 {object} PatchUserResponseDTO "User patched"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     404 {object} core_http_response.ErrorResponse "Not found"
+// @Failure     409 {object} core_http_response.ErrorResponse "Conflict"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /users/{id} [patch]
 func (h *UserHttpHandler) PatchUser(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	log := core_logger.FromContext(ctx)

@@ -17,6 +17,9 @@ services:
       - HTTP_HOST=${HTTP_HOST}
       - HTTP_PORT=${HTTP_PORT}
       - HTTP_SHUTDOWN_TIMEOUT=${HTTP_SHUTDOWN_TIMEOUT}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - CORS_ALLOWED_METHODS=${CORS_ALLOWED_METHODS}
+      - CORS_ALLOWED_HEADERS=${CORS_ALLOWED_HEADERS}
       - TIME_ZONE=${TIME_ZONE}
     volumes:
       - ${PROJECT_ROOT}/out/logs:/app/out/logs
@@ -47,3 +50,16 @@ services:
     command: tcp-listen:5432,reuseaddr,fork tcp:todoapp-postgres:5432
     ports:
       - 127.0.0.1:5432:5432
+
+  swagger:
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile_inline: |
+        FROM golang:1.26.4-alpine
+        RUN apk add --no-cache git
+        RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
+        WORKDIR /code
+        ENTRYPOINT ["swag"]
+    volumes:
+      - ${PROJECT_ROOT}:/code
+    
