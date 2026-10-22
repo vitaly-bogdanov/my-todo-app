@@ -26,6 +26,18 @@ func NewHTTPResponseHandler(log *core_logger.Logger, rw http.ResponseWriter) *HT
 	return &HTTPResponseHandler{log: log, rw: rw}
 }
 
+func (h *HTTPResponseHandler) HtmlResponse(html []byte) {
+	h.FileResponse(html, "text/html; charset=utf-8")
+}
+
+func (h *HTTPResponseHandler) FileResponse(body []byte, contentType string) {
+	h.rw.Header().Set("Content-Type", contentType)
+	h.rw.WriteHeader(http.StatusOK)
+	if _, err := h.rw.Write(body); err != nil {
+		h.log.Error("failed to write response", zap.Error(err))
+	}
+}
+
 func (h *HTTPResponseHandler) JSONResponse(
 	responseBody any,
 	statusCode int,

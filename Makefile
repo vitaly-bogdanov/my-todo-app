@@ -83,7 +83,8 @@ logs-clear:
 	fi
 
 todoapp-run:
-	@go mod tidy && \
+	@npm --prefix $(PROJECT_ROOT)/web run build && \
+	go mod tidy && \
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
 
 todoapp-deploy:

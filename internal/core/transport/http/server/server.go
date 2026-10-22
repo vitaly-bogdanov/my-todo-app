@@ -33,6 +33,24 @@ func NewHTTPServer(
 	}
 }
 
+func (s *HTTPServer) RegisterRoutes(routes ...Route) {
+	for _, route := range routes {
+		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
+		s.mux.Handle(pattern, route.WithMiddlewares())
+	}
+}
+
+func (s *HTTPServer) RegisterAPIVersionRouter(routers ...*APIVersionRouter) {
+	for _, router := range routers {
+		prefix := fmt.Sprintf("/api/%s", router.apiVersion)
+
+		s.mux.Handle(
+			prefix+"/",
+			http.StripPrefix(prefix, router.WithMiddlewares()),
+		)
+	}
+}
+
 func (s *HTTPServer) RegisterSwagger() {
 	s.mux.Handle(
 		"/swagger/",
@@ -91,15 +109,4 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *HTTPServer) RegisterAPIVersionRouter(routers ...*APIVersionRouter) {
-	for _, router := range routers {
-		prefix := fmt.Sprintf("/api/%s", router.apiVersion)
-
-		s.mux.Handle(
-			prefix+"/",
-			http.StripPrefix(prefix, router.WithMiddlewares()),
-		)
-	}
 }
