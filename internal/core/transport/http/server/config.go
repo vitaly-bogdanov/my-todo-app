@@ -8,10 +8,13 @@ import (
 )
 
 type Config struct {
-	Host            string        `envconfig:"HOST"`
-	Port            int           `envconfig:"PORT" required:"true"`
-	Addr            string        `ignored:"true"`
-	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
+	Host               string        `envconfig:"HOST"`
+	Port               int           `envconfig:"PORT" required:"true"`
+	Addr               string        `ignored:"true"`
+	ShutdownTimeout    time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
+	CORSAllowedOrigins []string      `envconfig:"CORS_ALLOWED_ORIGINS" required:"true"`
+	CORSAllowedMethods []string      `envconfig:"CORS_ALLOWED_METHODS" default:"GET,POST,PATCH,PUT,DELETE,OPTIONS"`
+	CORSAllowedHeaders []string      `envconfig:"CORS_ALLOWED_HEADERS" default:"Content-Type,Authorization"`
 }
 
 func NewConfig() (Config, error) {

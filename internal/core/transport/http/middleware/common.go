@@ -99,14 +99,14 @@ func Trace() Middleware {
 	}
 }
 
-func CORS(config CORSConfig) Middleware {
-	allowedOrigins := make(map[string]struct{}, len(config.AllowedOrigins))
-	for _, origin := range config.AllowedOrigins {
+func CORS(origins, methods, headers []string) Middleware {
+	allowedOrigins := make(map[string]struct{}, len(origins))
+	for _, origin := range origins {
 		allowedOrigins[origin] = struct{}{}
 	}
 
-	allowedMethods := strings.Join(config.AllowedMethods, ", ")
-	allowedHeaders := strings.Join(config.AllowedHeaders, ", ")
+	allowedMethods := strings.Join(methods, ", ")
+	allowedHeaders := strings.Join(headers, ", ")
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

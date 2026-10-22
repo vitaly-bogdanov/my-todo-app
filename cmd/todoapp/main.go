@@ -23,6 +23,9 @@ import (
 	users_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/users/repository/postgres"
 	users_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/users/service"
 	users_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/users/transport/http"
+	web_repository_file_system "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/repository/file_system"
+	web_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/service"
+	web_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/transport/http"
 	"go.uber.org/zap"
 )
 
@@ -75,11 +78,21 @@ func main() {
 	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
 	statisticsTransportHTTP := statistics_transport_http.NewStatisticsHttpHandler(statisticsService)
 
+	logger.Debug("initializing features...", zap.String("features", "web"))
+	webRepository := web_repository_file_system.NewWebRepository()
+	webService := web_service.NewWebService(webRepository)
+	webTransportHTTP := web_transport_http.NewWebHTTPHandler(webService)
+
 	logger.Debug("initializing HTTP server...")
+	httpConfig := core_http_server.NewConfigMust()
 	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
+		httpConfig,
 		logger,
-		core_http_middleware.CORS(core_http_middleware.NewCORSConfigMust()),
+		core_http_middleware.CORS(
+			httpConfig.CORSAllowedOrigins,
+			httpConfig.CORSAllowedMethods,
+			httpConfig.CORSAllowedHeaders,
+		),
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
 		core_http_middleware.Trace(),
@@ -89,6 +102,8 @@ func main() {
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
+
+	httpServer.RegisterRoutes(webTransportHTTP.Routes()...)
 
 	httpServer.RegisterAPIVersionRouter(apiVersionRouter)
 	httpServer.RegisterSwagger()
