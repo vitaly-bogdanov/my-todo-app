@@ -20,12 +20,7 @@ func (s *WebService) GetMainPage(ctx context.Context) ([]byte, error) {
 }
 
 func (s *WebService) GetFile(ctx context.Context, name string) ([]byte, error) {
-	root := os.Getenv("FRONTEND_DIST_PATH")
-	if root == "" {
-		return nil, fmt.Errorf("FRONTEND_DIST_PATH is empty: %w", core_errors.InternalServerError)
-	}
-
-	rootPath, err := filepath.Abs(root)
+	rootPath, err := filepath.Abs("web/dist")
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve frontend path: %w", err)
 	}
@@ -33,7 +28,7 @@ func (s *WebService) GetFile(ctx context.Context, name string) ([]byte, error) {
 	relativePath := strings.TrimPrefix(filepath.Clean("/"+name), "/")
 	filePath := filepath.Join(rootPath, relativePath)
 	if filePath != rootPath && !strings.HasPrefix(filePath, rootPath+string(os.PathSeparator)) {
-		return nil, fmt.Errorf("invalid frontend file path: %w", core_errors.BadRequest)
+		return nil, fmt.Errorf("invalid frontend file path: %w", core_errors.InvalidParameters)
 	}
 
 	file, err := s.webRepository.GetFile(filePath)

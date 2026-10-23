@@ -34,7 +34,7 @@ func (h *UserHttpHandler) GetUser(rw http.ResponseWriter, req *http.Request) {
 	userID, err := core_http_request.GetIntPathValue(req, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(
-			fmt.Errorf("%w: %w", err, core_errors.BadRequest),
+			fmt.Errorf("%w: %w", err, core_errors.InvalidParameters),
 			"failed to get user",
 		)
 		return

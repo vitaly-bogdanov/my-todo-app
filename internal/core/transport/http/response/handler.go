@@ -56,7 +56,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	)
 
 	switch {
-	case errors.Is(err, core_errors.BadRequest):
+	case errors.Is(err, core_errors.InvalidParameters):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
 

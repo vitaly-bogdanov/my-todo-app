@@ -17,7 +17,7 @@ func (s *StatisticsService) GetStatistics(
 ) (core_domain.Statistics, error) {
 	if from != nil && to != nil {
 		if to.Before(*from) || to.Equal(*from) {
-			return core_domain.Statistics{}, fmt.Errorf("to date is before from date: %w", core_errors.BadRequest)
+			return core_domain.Statistics{}, fmt.Errorf("to date is before from date: %w", core_errors.InvalidParameters)
 		}
 	}
 

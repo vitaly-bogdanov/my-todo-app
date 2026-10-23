@@ -33,7 +33,7 @@ func (h *UserHttpHandler) GetUsers(rw http.ResponseWriter, req *http.Request) {
 	limit, offset, err := getLimitOffsetQueryParams(req)
 	if err != nil {
 		responseHandler.ErrorResponse(
-			fmt.Errorf("%w: %w", err, core_errors.BadRequest),
+			fmt.Errorf("%w: %w", err, core_errors.InvalidParameters),
 			"get limit offset query params",
 		)
 		return

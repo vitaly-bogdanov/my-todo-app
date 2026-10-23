@@ -22,11 +22,13 @@ func (r *StatisticsRepository) GetTasks(
 	queryBuilder.WriteString(`
 		SELECT
 			id,
+			version,
 			title,
 			description,
 			completed,
 			created_at,
-			completed_at
+			completed_at,
+			author_id
 		FROM todoapp.tasks
 	`)
 
@@ -34,7 +36,7 @@ func (r *StatisticsRepository) GetTasks(
 	conditions := []string{}
 
 	if userId != nil {
-		conditions = append(conditions, fmt.Sprintf("user_id = $%d", len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("author_id = $%d", len(args)+1))
 		args = append(args, userId)
 	}
 

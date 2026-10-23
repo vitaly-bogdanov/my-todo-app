@@ -36,7 +36,7 @@ func (h *TaskHttpHandler) GetTasks(rw http.ResponseWriter, r *http.Request) {
 	limit, offset, userId, err := getUserIdAndLimitOffsetQueryParams(r)
 	if err != nil {
 		responseHandler.ErrorResponse(
-			fmt.Errorf("%w: %w", err, core_errors.BadRequest),
+			fmt.Errorf("%w: %w", err, core_errors.InvalidParameters),
 			"failed to get user_id or limit or offset query params",
 		)
 		return
