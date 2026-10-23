@@ -11,6 +11,7 @@ import (
 	_ "github.com/vitaly-bogdanov/my-todo-app/docs"
 	core_config "github.com/vitaly-bogdanov/my-todo-app/internal/core/config"
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
+	core_repository_postgres_migrator "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/migrator"
 	core_repository_postgres_pool_pgx "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool/pgx"
 	core_repository_redis_pool_goredis "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/redis/pool/goredis"
 	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
@@ -28,6 +29,7 @@ import (
 	web_repository_file_system "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/repository/file_system"
 	web_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/service"
 	web_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/web/transport/http"
+	"github.com/vitaly-bogdanov/my-todo-app/migrations"
 	"go.uber.org/zap"
 )
 
@@ -53,11 +55,27 @@ func main() {
 	defer logger.Close()
 
 	logger.Info("setting time zone...", zap.String("time zone", time.Local.String()))
+	postgresConfig := core_repository_postgres_pool_pgx.NewConfigMust()
+
+	logger.Info("applying database migrations...")
+	migrationsVersion, migrationsDirty, err := core_repository_postgres_migrator.Up(
+		migrations.FS,
+		postgresConfig.URL("pgx5"),
+	)
+	if err != nil {
+		logger.Fatal("failed to apply database migrations", zap.Error(err))
+	}
+	logger.Info(
+		"database migrations applied",
+		zap.Uint("version", migrationsVersion),
+		zap.Bool("dirty", migrationsDirty),
+	)
+
 	logger.Info("creating connection pool...")
 
 	pool, err := core_repository_postgres_pool_pgx.NewPool(
 		ctx,
-		core_repository_postgres_pool_pgx.NewConfigMust(),
+		postgresConfig,
 	)
 	if err != nil {
 		logger.Fatal("failed to create connection pool", zap.Error(err))

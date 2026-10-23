@@ -16,11 +16,22 @@ type Pool struct {
 }
 
 func NewPool(ctx context.Context, cfg Config) (*Pool, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
-		Password: cfg.Password,
-		DB:       cfg.DB,
-	})
+	var options *redis.Options
+	if cfg.URL != "" {
+		var err error
+		options, err = redis.ParseURL(cfg.URL)
+		if err != nil {
+			return nil, fmt.Errorf("parse REDIS_URL: %w", err)
+		}
+	} else {
+		options = &redis.Options{
+			Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+			Password: cfg.Password,
+			DB:       cfg.DB,
+		}
+	}
+
+	client := redis.NewClient(options)
 
 	if err := client.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("redis ping: %w", err)
