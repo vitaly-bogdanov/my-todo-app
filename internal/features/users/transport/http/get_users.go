@@ -11,10 +11,19 @@ import (
 	core_http_response "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/response"
 )
 
-// GetUsersResponseDTO — тело ответа после получения списка пользователей.
 type GetUsersResponseDTO []UserDTO
 
-// GetUsers обрабатывает GET /users и возвращает список пользователей.
+// GetUsers godoc
+// @Summary     Get users list
+// @Description Get users list
+// @Tags        users
+// @Produce     json
+// @Param       limit query int false "Limit"
+// @Param       offset query int false "Offset"
+// @Success     200 {array} UserDTO "Users list"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /users [get]
 func (h *UserHttpHandler) GetUsers(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	log := core_logger.FromContext(ctx)
@@ -24,7 +33,7 @@ func (h *UserHttpHandler) GetUsers(rw http.ResponseWriter, req *http.Request) {
 	limit, offset, err := getLimitOffsetQueryParams(req)
 	if err != nil {
 		responseHandler.ErrorResponse(
-			fmt.Errorf("%w: %w", err, core_errors.BadRequest),
+			fmt.Errorf("%w: %w", err, core_errors.InvalidParameters),
 			"get limit offset query params",
 		)
 		return

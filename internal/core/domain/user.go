@@ -45,11 +45,11 @@ func NewUserUninitialized(
 func (u *User) Validate() error {
 	fullNameLength := len([]rune(u.FullName))
 	if fullNameLength < 1 || fullNameLength > 100 {
-		return fmt.Errorf("invalid FullName length %d: %w", fullNameLength, core_errors.BadRequest)
+		return fmt.Errorf("invalid FullName length %d: %w", fullNameLength, core_errors.InvalidParameters)
 	}
 
 	if u.PhoneNumber != nil && !phoneNumberPattern.MatchString(*u.PhoneNumber) {
-		return fmt.Errorf("invalid PhoneNumber: %w", core_errors.BadRequest)
+		return fmt.Errorf("invalid PhoneNumber: %w", core_errors.InvalidParameters)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func NewUserPatch(
 
 func (u *UserPatch) Validate() error {
 	if u.FullName.Set && u.FullName.Value == nil {
-		return fmt.Errorf("FullName is required: %w", core_errors.BadRequest)
+		return fmt.Errorf("FullName is required: %w", core_errors.InvalidParameters)
 	}
 
 	return nil

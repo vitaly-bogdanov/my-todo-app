@@ -17,7 +17,7 @@ type validateble interface {
 
 func DecodeAndValidate[T any](r *http.Request, dest T) error {
 	if err := json.NewDecoder(r.Body).Decode(dest); err != nil {
-		return fmt.Errorf("failed to decode request body: %v: %w", err, core_errors.BadRequest)
+		return fmt.Errorf("failed to decode request body: %v: %w", err, core_errors.InvalidParameters)
 	}
 
 	var err error
@@ -33,7 +33,7 @@ func DecodeAndValidate[T any](r *http.Request, dest T) error {
 		return fmt.Errorf(
 			"failed to validate request body: %v: %w",
 			err,
-			core_errors.BadRequest,
+			core_errors.InvalidParameters,
 		)
 	}
 

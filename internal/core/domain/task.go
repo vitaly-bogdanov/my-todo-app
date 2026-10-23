@@ -76,30 +76,30 @@ func (t *Task) Validate() error {
 	// Title обязателен: от 1 до 100 символов.
 	titleLength := len([]rune(t.Title))
 	if titleLength < 1 || titleLength > 100 {
-		return fmt.Errorf("title must be between 1 and 100 characters: %d: %w", titleLength, core_errors.BadRequest)
+		return fmt.Errorf("title must be between 1 and 100 characters: %d: %w", titleLength, core_errors.InvalidParameters)
 	}
 
 	// Description необязателен; если задан, длина от 1 до 1000 символов.
 	if t.Description != nil {
 		descriptionLength := len([]rune(*t.Description))
 		if descriptionLength < 1 || descriptionLength > 1000 {
-			return fmt.Errorf("description must be between 1 and 1000 characters: %d: %w", descriptionLength, core_errors.BadRequest)
+			return fmt.Errorf("description must be between 1 and 1000 characters: %d: %w", descriptionLength, core_errors.InvalidParameters)
 		}
 	}
 
 	if t.Completed {
 		// Завершённая задача должна иметь CompletedAt.
 		if t.CompletedAt == nil {
-			return fmt.Errorf("completed at is required when task is completed: %w", core_errors.BadRequest)
+			return fmt.Errorf("completed at is required when task is completed: %w", core_errors.InvalidParameters)
 		}
 		// CompletedAt не может быть раньше CreatedAt.
 		if t.CompletedAt.Before(t.CreatedAt) {
-			return fmt.Errorf("completed at must be after created at: %w", core_errors.BadRequest)
+			return fmt.Errorf("completed at must be after created at: %w", core_errors.InvalidParameters)
 		}
 	} else {
 		// Незавершённая задача не должна иметь CompletedAt.
 		if t.CompletedAt != nil {
-			return fmt.Errorf("completed at must be nil when task is not completed: %w", core_errors.BadRequest)
+			return fmt.Errorf("completed at must be nil when task is not completed: %w", core_errors.InvalidParameters)
 		}
 	}
 
@@ -126,11 +126,11 @@ func NewTaskPatch(
 
 func (t *TaskPatch) Validate() error {
 	if t.Title.Set && t.Title.Value == nil {
-		return fmt.Errorf("Title can't be patched to null: %w", core_errors.BadRequest)
+		return fmt.Errorf("Title can't be patched to null: %w", core_errors.InvalidParameters)
 	}
 
 	if t.Completed.Set && t.Completed.Value == nil {
-		return fmt.Errorf("Completed can't be patched to null: %w", core_errors.BadRequest)
+		return fmt.Errorf("Completed can't be patched to null: %w", core_errors.InvalidParameters)
 	}
 
 	return nil

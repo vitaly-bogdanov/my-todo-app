@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+	"github.com/vitaly-bogdanov/my-todo-app/docs"
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
 	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
 	"go.uber.org/zap"
@@ -29,6 +31,47 @@ func NewHTTPServer(
 		log:         log,
 		middlewares: middlewares,
 	}
+}
+
+func (s *HTTPServer) RegisterRoutes(routes ...Route) {
+	for _, route := range routes {
+		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
+		s.mux.Handle(pattern, route.WithMiddlewares())
+	}
+}
+
+func (s *HTTPServer) RegisterAPIVersionRouter(routers ...*APIVersionRouter) {
+	for _, router := range routers {
+		handler := router.WithMiddlewares()
+		for _, prefix := range []string{
+			fmt.Sprintf("/api/%s", router.apiVersion),
+			fmt.Sprintf("/%s", router.apiVersion),
+		} {
+			s.mux.Handle(
+				prefix+"/",
+				http.StripPrefix(prefix, handler),
+			)
+		}
+	}
+}
+
+func (s *HTTPServer) RegisterSwagger() {
+	s.mux.Handle(
+		"/swagger/",
+		httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"),
+			httpSwagger.DefaultModelsExpandDepth(-1),
+		),
+	)
+
+	s.mux.HandleFunc(
+		"/swagger/doc.json",
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+		},
+	)
 }
 
 func (s *HTTPServer) Run(ctx context.Context) error {
@@ -70,15 +113,4 @@ func (s *HTTPServer) Run(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *HTTPServer) RegisterAPIVersionRouter(routers ...*APIVersionRouter) {
-	for _, router := range routers {
-		prefix := fmt.Sprintf("/%s", router.apiVersion)
-
-		s.mux.Handle(
-			prefix+"/",
-			http.StripPrefix(prefix, router.WithMiddlewares()),
-		)
-	}
 }

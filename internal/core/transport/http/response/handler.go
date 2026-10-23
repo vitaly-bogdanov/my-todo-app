@@ -26,6 +26,18 @@ func NewHTTPResponseHandler(log *core_logger.Logger, rw http.ResponseWriter) *HT
 	return &HTTPResponseHandler{log: log, rw: rw}
 }
 
+func (h *HTTPResponseHandler) HtmlResponse(html []byte) {
+	h.FileResponse(html, "text/html; charset=utf-8")
+}
+
+func (h *HTTPResponseHandler) FileResponse(body []byte, contentType string) {
+	h.rw.Header().Set("Content-Type", contentType)
+	h.rw.WriteHeader(http.StatusOK)
+	if _, err := h.rw.Write(body); err != nil {
+		h.log.Error("failed to write response", zap.Error(err))
+	}
+}
+
 func (h *HTTPResponseHandler) JSONResponse(
 	responseBody any,
 	statusCode int,
@@ -44,7 +56,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	)
 
 	switch {
-	case errors.Is(err, core_errors.BadRequest):
+	case errors.Is(err, core_errors.InvalidParameters):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
 
@@ -83,10 +95,11 @@ func (h *HTTPResponseHandler) errorResponse(
 	err error,
 	msg string,
 ) {
-	response := map[string]string{
-		"message": msg,
-		"error":   err.Error(),
+
+	errorResponse := ErrorResponse{
+		Error:   err.Error(),
+		Message: msg,
 	}
 
-	h.JSONResponse(response, statusCode)
+	h.JSONResponse(errorResponse, statusCode)
 }

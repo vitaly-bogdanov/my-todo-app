@@ -8,6 +8,18 @@ import (
 	core_http_response "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/response"
 )
 
+// DeleteUser godoc
+// @Summary     Delete user
+// @Description Delete user by ID
+// @Tags        users
+// @Accept      json
+// @Produce     json
+// @Param       id path int true "User ID"
+// @Success     204 "No content"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     404 {object} core_http_response.ErrorResponse "Not found"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /users/{id} [delete]
 func (h *UserHttpHandler) DeleteUser(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	log := core_logger.FromContext(ctx)

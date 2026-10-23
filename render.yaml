@@ -1,5 +1,5 @@
 # Render Blueprint: https://render.com/docs/blueprint-spec
-# Бесплатный Docker web service + бесплатная Postgres.
+# Бесплатный Docker web service + бесплатные Postgres и Key Value.
 # Миграции применяются самим приложением при старте (на free-плане нет pre-deploy команды).
 services:
   - type: web
@@ -19,6 +19,8 @@ services:
         value: "10000"
       - key: HTTP_SHUTDOWN_TIMEOUT
         value: 10s
+      - key: HTTP_CORS_ALLOWED_ORIGINS
+        value: https://my-todo-app.onrender.com
       - key: POSTGRES_HOST
         fromDatabase:
           name: my-todo-app-db
@@ -44,12 +46,24 @@ services:
       # Внутренняя сеть Render не требует SSL. Для внешнего подключения поставьте require.
       - key: POSTGRES_SSLMODE
         value: disable
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: my-todo-app-redis
+          property: connectionString
+      - key: REDIS_TTL
+        value: 5m
       - key: LOGGER_LEVEL
         value: info
       - key: LOGGER_FOLDER
         value: /app/out/logs
       - key: TIME_ZONE
         value: UTC
+
+  - type: keyvalue
+    name: my-todo-app-redis
+    plan: free
+    ipAllowList: []
 
 databases:
   - name: my-todo-app-db

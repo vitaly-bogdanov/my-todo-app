@@ -1,2 +1,4 @@
 .env
 out
+web/node_modules
+web/dist

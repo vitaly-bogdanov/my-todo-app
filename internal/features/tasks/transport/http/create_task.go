@@ -17,6 +17,18 @@ type CreateTaskRequestDTO struct {
 
 type CreateTaskResponseDTO TaskDTO
 
+// CreateTask godoc
+// @Summary     Create a new task
+// @Description Create a task with title, optional description and author user id
+// @Tags        tasks
+// @Accept      json
+// @Produce     json
+// @Param       request body CreateTaskRequestDTO true "Task creation request"
+// @Success     201 {object} CreateTaskResponseDTO "Task created successfully"
+// @Failure     400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     404 {object} core_http_response.ErrorResponse "Author not found"
+// @Failure     500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /tasks [post]
 func (h *TaskHttpHandler) CreateTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
