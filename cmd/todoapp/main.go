@@ -12,12 +12,14 @@ import (
 	core_config "github.com/vitaly-bogdanov/my-todo-app/internal/core/config"
 	core_logger "github.com/vitaly-bogdanov/my-todo-app/internal/core/logger"
 	core_repository_postgres_pool_pgx "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/postgres/pool/pgx"
+	core_repository_redis_pool_goredis "github.com/vitaly-bogdanov/my-todo-app/internal/core/repository/redis/pool/goredis"
 	core_http_middleware "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/middleware"
 	core_http_server "github.com/vitaly-bogdanov/my-todo-app/internal/core/transport/http/server"
 	statistics_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/repository/postgres"
 	statistics_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/service"
 	statistics_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/statistics/transport/http"
 	tasks_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/repository/postgres"
+	tasks_repository_redis "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/repository/redis"
 	tasks_service "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/service"
 	tasks_transport_http "github.com/vitaly-bogdanov/my-todo-app/internal/features/tasks/transport/http"
 	users_repository_postgres "github.com/vitaly-bogdanov/my-todo-app/internal/features/users/repository/postgres"
@@ -63,6 +65,16 @@ func main() {
 
 	defer pool.Close()
 
+	logger.Info("creating redis pool...")
+	redisPool, err := core_repository_redis_pool_goredis.NewPool(
+		ctx,
+		core_repository_redis_pool_goredis.NewConfigMust(),
+	)
+	if err != nil {
+		logger.Fatal("failed to create redis pool", zap.Error(err))
+	}
+	defer redisPool.Close()
+
 	logger.Debug("initializing features...", zap.String("features", "users"))
 	usersRepository := users_repository_postgres.NewUserRepository(pool)
 	usersService := users_service.NewUserService(usersRepository)
@@ -70,7 +82,8 @@ func main() {
 
 	logger.Debug("initializing features...", zap.String("features", "tasks"))
 	tasksRepository := tasks_repository_postgres.NewTaskRepository(pool)
-	tasksService := tasks_service.NewTaskService(tasksRepository)
+	cachedTasksRepository := tasks_repository_redis.NewCachedRepository(redisPool, tasksRepository)
+	tasksService := tasks_service.NewTaskService(cachedTasksRepository)
 	tasksTransportHTTP := tasks_transport_http.NewTaskHttpHandler(tasksService)
 
 	logger.Debug("initializing features...", zap.String("features", "statistics"))

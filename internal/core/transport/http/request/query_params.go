@@ -42,7 +42,7 @@ func GetDateQueryParams(req *http.Request, key string) (*time.Time, error) {
 			queryParam,
 			key,
 			err,
-			core_errors.BadRequest,
+			core_errors.InvalidParameters,
 		)
 	}
 
